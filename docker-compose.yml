@@ -9,7 +9,6 @@ services:
   postgresql:
     image: postgres
     hostname: postgresql
-    container_name: gps_db
     ports:
       - "5432:5432"
     volumes:
@@ -30,7 +29,6 @@ services:
     build:
       context: api
     hostname: api
-    container_name: gps_api
     ports:
     - "8080:8080"
     restart: always
@@ -46,7 +44,6 @@ services:
     build:
       context: worker
     hostname: worker
-    container_name: pgs_worker
     restart: always
     depends_on:
       - postgresql
@@ -57,11 +54,9 @@ services:
     networks:
       - app-tier
 
-
   minio:
     image: 'minio/minio'
     hostname: minio
-    container_name: gps_minio
     ports:
       - "9000:9000"
     volumes:

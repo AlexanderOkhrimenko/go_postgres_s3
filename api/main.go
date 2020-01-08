@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go_postgres_s3/api/modules"
 )
@@ -29,6 +30,5 @@ func main() {
 func InsertUrl(c *gin.Context) {
 
 	id := modules.InsertDBurl("ya.ru")
-	c.String(200, string(id))
-
+	fmt.Println(id)
 }

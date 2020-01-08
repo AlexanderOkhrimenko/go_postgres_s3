@@ -5,8 +5,8 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/minio/minio-go"
-	"go_postgres_s3/api/modules"
 	"log"
+	"math/rand"
 	"net/url"
 	"os"
 	"time"
@@ -14,8 +14,22 @@ import (
 
 var db *sql.DB
 
-func init() {
-	var err error
+type JobRow struct {
+	id               uint64
+	error            sql.NullInt64
+	errordescription sql.NullString
+	command          sql.NullString
+	status           sql.NullString
+	complete         sql.NullInt64
+	task             sql.NullString
+	priority         sql.NullString
+	resulturl        sql.NullString
+	resultsurl       sql.NullString
+	duration         sql.NullFloat64
+	outobjects       sql.NullString
+}
+
+func main() {
 
 	pgDbName := os.Getenv("POSTGRES_DB")
 	pgUser := os.Getenv("POSTGRES_USER")
@@ -23,32 +37,126 @@ func init() {
 
 	fmt.Println(pgDbName, pgUser, pgPass)
 
-	connStr := "host=postgresql user=" + pgUser + " password=" + pgPass + " dbname=" + pgDbName + " sslmode=disable"
+	for {
 
-	db, err = sql.Open("postgres", connStr)
-	if err != nil {
-		panic(err)
+		var err error
+		connStr := "host=postgresql user=" + pgUser + " password=" + pgPass + " dbname=" + pgDbName + " sslmode=disable"
+
+		db, err = sql.Open("postgres", connStr)
+		if err != nil {
+			panic(err)
+		}
+
+		defer db.Close()
+
+		if err = db.Ping(); err != nil {
+			panic(err)
+		}
+
+		fmt.Println("Job search.....")
+
+		id, error, command, status, complete, task, priority, duration, outobjects := SelectMinWaitTask()
+
+		// Показываем какую id взяли в работу
+		fmt.Printf("task %s in work id = %d \n", task, id)
+
+		fmt.Println(" - - - - - - ")
+		fmt.Println("error - ", error)
+		fmt.Println("command - ", command)
+		fmt.Println("status - ", status)
+		fmt.Println("complete - ", complete)
+		fmt.Println("task - ", task)
+		fmt.Println("priority - ", priority)
+		fmt.Println("duration - ", duration)
+		fmt.Println("outobjects - ", outobjects)
+		fmt.Println(" - - - - - - ")
+
+		rand.Seed(time.Now().UTC().UnixNano())
+		t := rand.Intn(6)
+		fmt.Println("Start worker time = ", t)
+		time.Sleep(time.Duration(t) * time.Second)
+
+		db.Close()
+
 	}
 
-	if err = db.Ping(); err != nil {
-		panic(err)
-	}
-
-	fmt.Println("You connect to your database")
 }
 
-func main() {
+func SelectMinWaitTask() (id uint64, error int, command string, status string, complete int, task string, priority string, duration float64, outobjects string) {
 
-	// Called function download
-	//Error , ErrorDescription , s3urllink := saveToS3("transcoder-out" , "ru-east-1" ,"history.txt" ,  "/home/u512/Загрузки/history.txt" ,"application/x-iso9660-image" )
+	//var status = "wait" // задачи с каким стстусом ищем
+	row := db.QueryRow("select * from jobs where id = (SELECT MIN(id) FROM jobs WHERE status = 'wait' )")
 
-	//fmt.Println(Error)
-	//fmt.Println(ErrorDescription)
-	//fmt.Println(s3urllink)
+	var q JobRow
+	//var r JobRowReal
 
-	id := modules.InsertDBurl("ya.ru")
-	fmt.Println(id)
+	err := row.Scan(&q.id, &q.error, &q.errordescription, &q.command, &q.status, &q.complete, &q.task, &q.priority, &q.resulturl, &q.resultsurl, &q.duration, &q.outobjects)
 
+	if err != nil {
+		//panic(err)
+	}
+
+	// Проверка считанных пареметров на валидацию и формирование итоговых значений.
+	// Id
+	id = q.id
+
+	//  error
+	if q.error.Valid {
+		error = int(q.error.Int64)
+	} else {
+		error = 0
+	}
+
+	//  command
+	if q.command.Valid {
+		command = q.command.String
+	} else {
+		command = ""
+	}
+
+	//  status
+	if q.status.Valid {
+		status = q.status.String
+	} else {
+		status = ""
+	}
+
+	//  complete
+	if q.complete.Valid {
+		complete = int(q.complete.Int64)
+	} else {
+		complete = 0
+	}
+
+	//  Проверка task
+	if q.task.Valid {
+		task = q.task.String
+	} else {
+		task = ""
+	}
+
+	//  Проверка priority
+	if q.priority.Valid {
+		priority = q.priority.String
+	} else {
+		priority = ""
+	}
+
+	// duration
+	if q.duration.Valid {
+		duration = float64(q.duration.Float64)
+	} else {
+		duration = 0
+	}
+
+	// outobjects
+	if q.outobjects.Valid {
+		outobjects = q.outobjects.String
+	} else {
+		outobjects = ""
+	}
+
+	return
 }
 
 func saveToS3(bucketName string, location string, objectName string, filePath string, contentType string) (Error int, ErrorDescription string, s3urllink string) {
@@ -115,26 +223,4 @@ func saveToS3(bucketName string, location string, objectName string, filePath st
 	s3urllink = presignedURL.String()
 
 	return Error, ErrorDescription, s3urllink
-}
-
-/* File content .env
-
-S3_HOST=127.0.0.1
-S3_PORT=9000
-MINIO_ACCESS_KEY=AAAABBBBCCCC
-MINIO_SECRET_KEY=ZZZZXXXXCCCCZZZZXXXXCCCC
-
-*/
-func InsertDBurl(url string) uint64 {
-
-	var lastInsertId uint64
-	err := db.QueryRow("INSERT INTO encore_tab (url) VALUES ('dfgdfg') returning id;",
-		url).Scan(&lastInsertId)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(lastInsertId)
-	return lastInsertId
-
 }

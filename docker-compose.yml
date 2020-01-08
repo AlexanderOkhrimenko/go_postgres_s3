@@ -13,7 +13,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgresql/sql_init/encore.sql:/docker-entrypoint-initdb.d/
+      - database_postgres:/var/lib/postgresql/data
+      - ./postgresql/sql_init//:/docker-entrypoint-initdb.d/
     restart: unless-stopped
     env_file:
       - .env
@@ -80,3 +81,4 @@ services:
 
 volumes:
   minio:
+  database_postgres:

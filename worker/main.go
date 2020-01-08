@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"github.com/minio/minio-go"
+	"go_postgres_s3/api/modules"
 	"log"
 	"net/url"
 	"os"
@@ -12,6 +13,7 @@ import (
 )
 
 var db *sql.DB
+
 func init() {
 	var err error
 
@@ -35,18 +37,21 @@ func init() {
 	fmt.Println("You connect to your database")
 }
 
-
-func main () {
+func main() {
 
 	// Called function download
-	Error , ErrorDescription , s3urllink := saveToS3("transcoder-out" , "ru-east-1" ,"ubuntu-18.04.3-live-server-amd64.iso" ,  "/Users/xander/Downloads/ubuntu-18.04.3-live-server-amd64.iso" ,"application/x-iso9660-image" )
+	//Error , ErrorDescription , s3urllink := saveToS3("transcoder-out" , "ru-east-1" ,"history.txt" ,  "/home/u512/Загрузки/history.txt" ,"application/x-iso9660-image" )
 
-	fmt.Println(Error)
-	fmt.Println(ErrorDescription)
-	fmt.Println(s3urllink)
+	//fmt.Println(Error)
+	//fmt.Println(ErrorDescription)
+	//fmt.Println(s3urllink)
+
+	id := modules.InsertDBurl("ya.ru")
+	fmt.Println(id)
+
 }
 
-func saveToS3 (bucketName string , location string , objectName string , filePath string , contentType string) (Error int, ErrorDescription string , s3urllink string) {
+func saveToS3(bucketName string, location string, objectName string, filePath string, contentType string) (Error int, ErrorDescription string, s3urllink string) {
 
 	// If the IP and PORT data are incorrect, an error is generated only after the timeout expires ~ 90 сек
 
@@ -55,7 +60,7 @@ func saveToS3 (bucketName string , location string , objectName string , filePat
 	s3accessKey := os.Getenv("MINIO_ACCESS_KEY")
 	s3secretKey := os.Getenv("MINIO_SECRET_KEY")
 
-	endpoint :=  s3host + ":" + s3port
+	endpoint := s3host + ":" + s3port
 	ssl := false
 
 	// content initialization
@@ -63,7 +68,7 @@ func saveToS3 (bucketName string , location string , objectName string , filePat
 	if err != nil {
 		Error = 1 //it is not clear at what errors this code works
 		ErrorDescription = err.Error()
-		return Error , ErrorDescription , s3urllink
+		return Error, ErrorDescription, s3urllink
 	}
 
 	// Creating a new package, if there is then write files to it
@@ -76,7 +81,7 @@ func saveToS3 (bucketName string , location string , objectName string , filePat
 		} else {
 			Error = 2
 			ErrorDescription = err.Error()
-			return Error , ErrorDescription , s3urllink
+			return Error, ErrorDescription, s3urllink
 
 		}
 	} else {
@@ -84,11 +89,11 @@ func saveToS3 (bucketName string , location string , objectName string , filePat
 	}
 
 	// File download ------------------------
-	n, err := minioClient.FPutObject(bucketName, objectName, filePath, minio.PutObjectOptions{ContentType:contentType})
+	n, err := minioClient.FPutObject(bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
 		Error = 3
 		ErrorDescription = err.Error()
-		return Error , ErrorDescription , s3urllink
+		return Error, ErrorDescription, s3urllink
 	}
 
 	log.Printf("Successfully uploaded %s of size %d\n", objectName, n)
@@ -96,27 +101,40 @@ func saveToS3 (bucketName string , location string , objectName string , filePat
 	// Getting a reference to a loaded object ----------
 	// Set request parameters for content-disposition.
 	reqParams := make(url.Values)
-	reqParams.Set("response-content-disposition", "attachment; filename=\""  + objectName + "\"")
+	reqParams.Set("response-content-disposition", "attachment; filename=\""+objectName+"\"")
 
 	// Generates a presigned url which expires in a day.
-	presignedURL, err := minioClient.PresignedGetObject(bucketName, objectName, time.Second * 24 * 60 * 60, reqParams)
+	presignedURL, err := minioClient.PresignedGetObject(bucketName, objectName, time.Second*24*60*60, reqParams)
 	if err != nil {
 		fmt.Println(err)
 		Error = 4
 		ErrorDescription = err.Error()
-		return Error , ErrorDescription , s3urllink
+		return Error, ErrorDescription, s3urllink
 	}
 	fmt.Println("Successfully generated presigned URL", presignedURL)
 	s3urllink = presignedURL.String()
 
-	return Error , ErrorDescription , s3urllink
+	return Error, ErrorDescription, s3urllink
 }
 
 /* File content .env
 
-	S3_HOST=127.0.0.1
-	S3_PORT=9000
-	MINIO_ACCESS_KEY=AAAABBBBCCCC
-	MINIO_SECRET_KEY=ZZZZXXXXCCCCZZZZXXXXCCCC
+S3_HOST=127.0.0.1
+S3_PORT=9000
+MINIO_ACCESS_KEY=AAAABBBBCCCC
+MINIO_SECRET_KEY=ZZZZXXXXCCCCZZZZXXXXCCCC
 
 */
+func InsertDBurl(url string) uint64 {
+
+	var lastInsertId uint64
+	err := db.QueryRow("INSERT INTO encore_tab (url) VALUES ('dfgdfg') returning id;",
+		url).Scan(&lastInsertId)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(lastInsertId)
+	return lastInsertId
+
+}

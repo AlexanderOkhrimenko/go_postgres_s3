@@ -1,0 +1,82 @@
+version: '3.7'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+
+  postgresql:
+    image: postgres
+    hostname: postgresql
+    container_name: gps_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgresql/sql_init/encore.sql:/docker-entrypoint-initdb.d/
+    restart: unless-stopped
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - app-tier
+
+  api:
+    build:
+      context: api
+    hostname: api
+    container_name: gps_api
+    ports:
+    - "8080:8080"
+    restart: always
+    depends_on:
+      - postgresql
+      - minio
+    env_file:
+      - .env
+    networks:
+      - app-tier
+
+  worker:
+    build:
+      context: worker
+    hostname: worker
+    container_name: pgs_worker
+    restart: always
+    depends_on:
+      - postgresql
+      - api
+      - minio
+    env_file:
+      - .env
+    networks:
+      - app-tier
+
+
+  minio:
+    image: 'minio/minio'
+    hostname: minio
+    container_name: gps_minio
+    ports:
+      - "9000:9000"
+    volumes:
+    - minio:/data
+    restart: always
+    env_file:
+      - .env
+    command: server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - app-tier
+
+
+volumes:
+  minio:

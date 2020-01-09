@@ -1,5 +1,4 @@
 FROM golang:latest AS builder
-LABEL maintainer="Aleksander Okhrimenko"
 
 RUN mkdir /go/src/worker
 WORKDIR /go/src/worker/

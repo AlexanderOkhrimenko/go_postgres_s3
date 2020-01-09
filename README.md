@@ -1,21 +1,19 @@
-## Минимальный каркас простого микро сервисного приложения
+## Minimal framework of a simple micro service application
 
-### Схема взаимодействия контейнеров :
+### Container interaction diagram :
 
  --> 8080 --> API <--> POSTGRESQL <--> WORKERS ---> MINIO 
  
- #### Используются только оригинальные образы. Go приложение в начале собирается а далее копируется в контейнер для использования, это приводит к минимальному размеру финального образа. 
+ #### Only original images are used. At first Golang application assembled and then copied to the container for use, this leads to a minimum size of the final image. 
  
 
-##### API - с помощью ````POST http://localhost:8080/v1/url.insert ```` запроса добавляет текстовую информацию в базу данных
-##### PostgreSQL
-##### MINIO
-##### WORKER - постоянно ищут в базе работу помеченную "wait”   
+##### API - accepts requests of the form  ````POST http://localhost:8080/v1/url.insert ```` the query adds text information to the database
+##### WORKER - looking for the value "wait” in the database. As an example of a function for writing a file to the repository was given MINIO
 
 
--	.env - содержит все переменные окружения доступные всем контейнерам (PostgreSQL / MINIO)
--	build.sh - запускает docker-compose.yml с 5 worker процессами
--	purge.sh - останавливает docker-compose.yml и удаляет все образы и тома связанные со сборкой это полезно при изменении кода и значений в .env файле.
--	обратите внимание что внутри докера хосты доступны по именам указанным в docker-compose.yml, например minio или postgresql
+-	```` .env ````- contains all environment variables available to all containers (PostgreSQL / MINIO)
+-	```` build.sh ```` - run ```` docker-compose.yml```` and five processes Worker
+-	```` purge.sh ```` - stop ````docker-compose.yml```` and deletes all images and volumes associated with the assembly; this is useful when you change the code and values ​​in the ````.env ```` file.
+-	note that hosts inside the docker are accessible by the names specified in docker-compose.yml, for example ```` minio ```` or ```` postgresql ````
 
 

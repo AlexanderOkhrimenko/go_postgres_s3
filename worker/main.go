@@ -15,8 +15,6 @@ import (
 	"time"
 )
 
-var db *sql.DB
-
 type JobRow struct {
 	id               uint64
 	error            sql.NullInt64
@@ -34,27 +32,7 @@ type JobRow struct {
 
 func main() {
 
-	//pgDbName := os.Getenv("POSTGRES_DB")
-	//pgUser := os.Getenv("POSTGRES_USER")
-	//pgPass := os.Getenv("POSTGRES_PASSWORD")
-	//
-	//fmt.Println(pgDbName, pgUser, pgPass)
-
 	for {
-
-		//var err error
-		//connStr := "host=postgresql user=" + pgUser + " password=" + pgPass + " dbname=" + pgDbName + " sslmode=disable"
-		//
-		//db, err = sql.Open("pgx", connStr)
-		//if err != nil {
-		//	panic(err)
-		//}
-		//
-		//defer db.Close()
-		//
-		//if err = db.Ping(); err != nil {
-		//	panic(err)
-		//}
 
 		fmt.Println("Job search.....")
 
@@ -79,8 +57,6 @@ func main() {
 		t := rand.Intn(6)
 		fmt.Println("Start worker time = ", t)
 		time.Sleep(time.Duration(t) * time.Second)
-
-		//db.Close()
 
 	}
 

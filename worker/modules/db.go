@@ -14,11 +14,11 @@ func ConnectPG() (conn *pgx.Conn) {
 	pgUser := os.Getenv("POSTGRES_USER")
 	pgPass := os.Getenv("POSTGRES_PASSWORD")
 
-	fmt.Println(pgDBName, pgUser, pgPass)
+	//fmt.Println(pgDBName, pgUser, pgPass)
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", pgUser, pgPass, "postgresql", "5432", pgDBName, "disable")
 
-	fmt.Println(connStr, "---------- DB")
+	//fmt.Println(connStr, "---------- DB")
 
 	conn, err := pgx.Connect(context.Background(), connStr)
 	if err != nil {

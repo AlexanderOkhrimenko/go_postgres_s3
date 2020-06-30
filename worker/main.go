@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	_ "github.com/jackc/pgx"
 	_ "github.com/lib/pq"
 	"github.com/minio/minio-go"
+	"go_postgres_s3/worker/modules"
 	"log"
 	"math/rand"
 	"net/url"
@@ -31,27 +34,27 @@ type JobRow struct {
 
 func main() {
 
-	pgDbName := os.Getenv("POSTGRES_DB")
-	pgUser := os.Getenv("POSTGRES_USER")
-	pgPass := os.Getenv("POSTGRES_PASSWORD")
-
-	fmt.Println(pgDbName, pgUser, pgPass)
+	//pgDbName := os.Getenv("POSTGRES_DB")
+	//pgUser := os.Getenv("POSTGRES_USER")
+	//pgPass := os.Getenv("POSTGRES_PASSWORD")
+	//
+	//fmt.Println(pgDbName, pgUser, pgPass)
 
 	for {
 
-		var err error
-		connStr := "host=postgresql user=" + pgUser + " password=" + pgPass + " dbname=" + pgDbName + " sslmode=disable"
-
-		db, err = sql.Open("postgres", connStr)
-		if err != nil {
-			panic(err)
-		}
-
-		defer db.Close()
-
-		if err = db.Ping(); err != nil {
-			panic(err)
-		}
+		//var err error
+		//connStr := "host=postgresql user=" + pgUser + " password=" + pgPass + " dbname=" + pgDbName + " sslmode=disable"
+		//
+		//db, err = sql.Open("pgx", connStr)
+		//if err != nil {
+		//	panic(err)
+		//}
+		//
+		//defer db.Close()
+		//
+		//if err = db.Ping(); err != nil {
+		//	panic(err)
+		//}
 
 		fmt.Println("Job search.....")
 
@@ -77,7 +80,7 @@ func main() {
 		fmt.Println("Start worker time = ", t)
 		time.Sleep(time.Duration(t) * time.Second)
 
-		db.Close()
+		//db.Close()
 
 	}
 
@@ -86,7 +89,11 @@ func main() {
 func SelectMinWaitTask() (id uint64, error int, command string, status string, complete int, task string, priority string, duration float64, outobjects string) {
 
 	//var status = "wait" //
-	row := db.QueryRow("select * from jobs where id = (SELECT MIN(id) FROM jobs WHERE status = 'wait' )")
+
+	db := modules.ConnectPG()
+	defer db.Close(context.Background())
+
+	row := db.QueryRow(context.Background(), "select * from jobs where id = (SELECT MIN(id) FROM jobs WHERE status = 'wait' )")
 
 	var q JobRow
 

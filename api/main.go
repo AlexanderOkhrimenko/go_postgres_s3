@@ -14,7 +14,7 @@ func main() {
 	// Simple group: v1
 	v1 := router.Group("/v1")
 	{
-		v1.POST("/url.insert", InsertUrl) // Upload MultipartForm
+		v1.POST("/url.insert", InsertUrl)
 
 	}
 	router.Run(":8080")

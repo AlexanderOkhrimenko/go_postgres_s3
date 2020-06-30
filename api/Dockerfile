@@ -1,5 +1,4 @@
 FROM golang:latest AS builder
-LABEL maintainer="Aleksandr Okhrimenko"
 
 RUN mkdir /go/src/go_postgres_s3/
 WORKDIR /go/src/go_postgres_s3/api/

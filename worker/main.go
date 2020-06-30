@@ -57,7 +57,7 @@ func main() {
 
 		id, error, command, status, complete, task, priority, duration, outobjects := SelectMinWaitTask()
 
-		// Показываем какую id взяли в работу
+		// Show what id took in the work
 		fmt.Printf("task %s in work id = %d \n", task, id)
 
 		fmt.Println(" - - - - - - ")
@@ -71,6 +71,7 @@ func main() {
 		fmt.Println("outobjects - ", outobjects)
 		fmt.Println(" - - - - - - ")
 
+		// Random start time of search in the database, improves the work of several workers
 		rand.Seed(time.Now().UTC().UnixNano())
 		t := rand.Intn(6)
 		fmt.Println("Start worker time = ", t)
@@ -84,11 +85,10 @@ func main() {
 
 func SelectMinWaitTask() (id uint64, error int, command string, status string, complete int, task string, priority string, duration float64, outobjects string) {
 
-	//var status = "wait" // задачи с каким стстусом ищем
+	//var status = "wait" //
 	row := db.QueryRow("select * from jobs where id = (SELECT MIN(id) FROM jobs WHERE status = 'wait' )")
 
 	var q JobRow
-	//var r JobRowReal
 
 	err := row.Scan(&q.id, &q.error, &q.errordescription, &q.command, &q.status, &q.complete, &q.task, &q.priority, &q.resulturl, &q.resultsurl, &q.duration, &q.outobjects)
 
@@ -96,7 +96,7 @@ func SelectMinWaitTask() (id uint64, error int, command string, status string, c
 		//panic(err)
 	}
 
-	// Проверка считанных пареметров на валидацию и формирование итоговых значений.
+	// Checking the read parameters for validation and forming the final values.
 	// Id
 	id = q.id
 

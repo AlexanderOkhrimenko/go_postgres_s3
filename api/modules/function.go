@@ -1,6 +1,6 @@
 package modules
 
-// Добавляет новую запись в таблицу  возвращает id
+// Adds a new record to the table and returns the id
 func InsertDBurl(url string) uint64 {
 
 	var lastInsertId uint64

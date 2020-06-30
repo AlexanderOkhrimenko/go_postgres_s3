@@ -3,8 +3,9 @@ FROM golang:latest AS builder
 RUN mkdir /go/src/go_postgres_s3/
 WORKDIR /go/src/go_postgres_s3/
 
-RUN go mod download
 COPY . .
+RUN go mod download
+
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o api .
 

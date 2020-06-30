@@ -3,10 +3,9 @@ FROM golang:latest AS builder
 RUN mkdir /go/src/worker
 WORKDIR /go/src/worker/
 
-RUN go get "github.com/lib/pq" && \
-    go get "github.com/minio/minio-go"
-
 COPY . .
+RUN go mod download
+
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o worker .
 
 FROM alpine:latest

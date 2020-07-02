@@ -16,18 +16,13 @@ import (
 )
 
 type JobRow struct {
-	id               uint64
-	error            sql.NullInt64
-	errordescription sql.NullString
-	command          sql.NullString
-	status           sql.NullString
-	complete         sql.NullInt64
-	task             sql.NullString
-	priority         sql.NullString
-	resulturl        sql.NullString
-	resultsurl       sql.NullString
-	duration         sql.NullFloat64
-	outobjects       sql.NullString
+	id         uint64
+	error      sql.NullInt64
+	priority   sql.NullString
+	resulturl  sql.NullString
+	resultsurl sql.NullString
+	duration   sql.NullFloat64
+	outobjects sql.NullString
 }
 
 func main() {
@@ -36,17 +31,11 @@ func main() {
 
 		fmt.Println("Job search.....")
 
-		id, error, command, status, complete, task, priority, duration, outobjects := SelectMinWaitTask()
-
-		// Show what id took in the work
-		fmt.Printf("task %s in work id = %d \n", task, id)
+		id, error, priority, duration, outobjects := SelectMinWaitTask()
 
 		fmt.Println(" - - - - - - ")
+		fmt.Println("id - ", id)
 		fmt.Println("error - ", error)
-		fmt.Println("command - ", command)
-		fmt.Println("status - ", status)
-		fmt.Println("complete - ", complete)
-		fmt.Println("task - ", task)
 		fmt.Println("priority - ", priority)
 		fmt.Println("duration - ", duration)
 		fmt.Println("outobjects - ", outobjects)
@@ -62,7 +51,7 @@ func main() {
 
 }
 
-func SelectMinWaitTask() (id uint64, error int, command string, status string, complete int, task string, priority string, duration float64, outobjects string) {
+func SelectMinWaitTask() (id uint64, error int, priority string, duration float64, outobjects string) {
 
 	//var status = "wait" //
 
@@ -73,7 +62,7 @@ func SelectMinWaitTask() (id uint64, error int, command string, status string, c
 
 	var q JobRow
 
-	err := row.Scan(&q.id, &q.error, &q.errordescription, &q.command, &q.status, &q.complete, &q.task, &q.priority, &q.resulturl, &q.resultsurl, &q.duration, &q.outobjects)
+	err := row.Scan(&q.id, &q.error, &q.priority, &q.resulturl, &q.resultsurl, &q.duration, &q.outobjects)
 
 	if err != nil {
 		//panic(err)
@@ -88,34 +77,6 @@ func SelectMinWaitTask() (id uint64, error int, command string, status string, c
 		error = int(q.error.Int64)
 	} else {
 		error = 0
-	}
-
-	//  command
-	if q.command.Valid {
-		command = q.command.String
-	} else {
-		command = ""
-	}
-
-	//  status
-	if q.status.Valid {
-		status = q.status.String
-	} else {
-		status = ""
-	}
-
-	//  complete
-	if q.complete.Valid {
-		complete = int(q.complete.Int64)
-	} else {
-		complete = 0
-	}
-
-	//  Проверка task
-	if q.task.Valid {
-		task = q.task.String
-	} else {
-		task = ""
 	}
 
 	//  Проверка priority

@@ -1,3 +1,5 @@
+![Docker Compose Actions Workflow](https://github.com/AlexanderOkhrimenko/go_postgres_s3/workflows/Docker%20Compose%20Actions%20Workflow/badge.svg?branch=master)
+
 ## Минимальный каркас простого микросервисного приложения
 
 ### Схема взяимодействия контейнеров :

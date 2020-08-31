@@ -87,9 +87,7 @@ services:
     - "24224:24224/udp"
 
   elasticsearch:
-    image: elasticsearch:7.9.0
-    expose:
-      - 9200
+    image: amazon/opendistro-for-elasticsearch:1.9.0
     ports:
       - "9200:9200"
     environment:
@@ -106,7 +104,7 @@ services:
 
 
   kibana:
-    image: kibana:7.9.0
+    image: amazon/opendistro-for-elasticsearch-kibana:1.9.0
     links:
       - "elasticsearch"
     ports:

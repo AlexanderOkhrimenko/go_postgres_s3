@@ -26,6 +26,6 @@ func main() {
 
 func InsertUrl(c *gin.Context) {
 
-	id := modules.InsertDBurl("ya.ru")
+	id := modules.InsertDBurl("localhost.local")
 	fmt.Println(id)
 }

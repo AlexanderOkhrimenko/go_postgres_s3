@@ -91,7 +91,8 @@ services:
 
 
   elasticsearch:
-    image: amazon/opendistro-for-elasticsearch:1.9.0
+    #image: amazon/opendistro-for-elasticsearch:1.9.0
+    image: library/elasticsearch:7.9.0
     container_name: elasticsearch
     expose:
       - 9200
@@ -105,9 +106,9 @@ services:
       - "discovery.zen.ping.unicast.hosts=elasticsearch"
       - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
       - "discovery.type=single-node"
-      - "XPACK_SECURITY_ENABLED=false"
-      - "XPACK_REPORTING_ENABLED=false"
-      - "XPACK_MONITORING_ENABLED=false"
+#      - "XPACK_SECURITY_ENABLED=false"
+#      - "XPACK_REPORTING_ENABLED=false"
+#      - "XPACK_MONITORING_ENABLED=false"
     ulimits:
       memlock:
         soft: -1
@@ -123,14 +124,15 @@ services:
 
 
   kibana:
-    image: amazon/opendistro-for-elasticsearch-kibana:1.9.0
+    image: kibana:7.9.0
+#    image: amazon/opendistro-for-elasticsearch-kibana:1.9.0
     container_name: kibana
     links:
       - "elasticsearch"
     ports:
       - "5601:5601"
     environment:
-      - "ELASTICSEARCH_URL=http://elasticsearch:9200"
+      - "ELASTICSEARCH_URL=https://elasticsearch:9200"
     deploy:
       resources:
         limits:

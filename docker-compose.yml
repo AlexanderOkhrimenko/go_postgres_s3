@@ -106,9 +106,6 @@ services:
       - "discovery.zen.ping.unicast.hosts=elasticsearch"
       - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
       - "discovery.type=single-node"
-#      - "XPACK_SECURITY_ENABLED=false"
-#      - "XPACK_REPORTING_ENABLED=false"
-#      - "XPACK_MONITORING_ENABLED=false"
     ulimits:
       memlock:
         soft: -1

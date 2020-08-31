@@ -32,9 +32,17 @@ services:
     ports:
     - "8080:8080"
     restart: always
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: api.01
     depends_on:
       - postgresql
       - minio
+      - fluentd
+      - elasticsearch
+      - kibana
     env_file:
       - .env
     networks:
@@ -45,20 +53,18 @@ services:
       context: worker
     hostname: worker
     restart: always
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: worker.2
-
     depends_on:
       - postgresql
       - api
       - minio
+      - fluentd
+      - elasticsearch
+      - kibana
     env_file:
       - .env
     networks:
       - app-tier
+
 
   minio:
     image: 'minio/minio'

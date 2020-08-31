@@ -1,9 +1,5 @@
 version: '3.7'
 
-networks:
-  app-tier:
-    driver: bridge
-
 services:
 
   postgresql:
@@ -22,8 +18,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    networks:
-      - app-tier
+
 
   api:
     build:
@@ -45,8 +40,7 @@ services:
       - kibana
     env_file:
       - .env
-    networks:
-      - app-tier
+
 
   worker:
     build:
@@ -62,8 +56,6 @@ services:
       - kibana
     env_file:
       - .env
-    networks:
-      - app-tier
 
 
   minio:
@@ -82,8 +74,7 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-    networks:
-      - app-tier
+
 
   fluentd:
     build: ./fluentd
@@ -101,6 +92,11 @@ services:
       - 9200
     ports:
       - "9200:9200"
+    environment:
+      - "cluster.name=docker-cluster"
+      - "network.host=0.0.0.0"
+      - "transport.host=0.0.0.0"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch"
 
   kibana:
     image: kibana:7.9.0
@@ -108,6 +104,8 @@ services:
       - "elasticsearch"
     ports:
       - "5601:5601"
+    environment:
+      - "ELASTICSEARCH_URL=http://elasticsearch:9200"
 
 
 volumes:

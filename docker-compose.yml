@@ -11,6 +11,13 @@ services:
       - database_postgres:/var/lib/postgresql/data
       - ./postgresql/sql_init//:/docker-entrypoint-initdb.d/
     restart: unless-stopped
+    depends_on:
+      - fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: pg
     env_file:
       - .env
     healthcheck:
@@ -72,6 +79,8 @@ services:
     volumes:
     - minio:/data
     restart: always
+    depends_on:
+      - fluentd
     env_file:
       - .env
     command: server /data
@@ -141,6 +150,7 @@ services:
           memory: 2048M
     depends_on:
       - elasticsearch
+      - fluentd
 
 
 volumes:

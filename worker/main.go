@@ -44,10 +44,10 @@ func main() {
 
 		db, err = sql.Open("postgres", connStr)
 		if err != nil {
-			panic(err)
+			log.Println(err)
 		}
 
-		defer db.Close()
+		//defer db.Close()
 
 		if err = db.Ping(); err != nil {
 			panic(err)
@@ -61,15 +61,25 @@ func main() {
 		fmt.Printf("task %s in work id = %d \n", task, id)
 
 		fmt.Println(" - - - - - - ")
-		fmt.Println("error - ", error)
-		fmt.Println("command - ", command)
-		fmt.Println("status - ", status)
-		fmt.Println("complete - ", complete)
-		fmt.Println("task - ", task)
-		fmt.Println("priority - ", priority)
-		fmt.Println("duration - ", duration)
-		fmt.Println("outobjects - ", outobjects)
+		fmt.Println("error", error)
+		fmt.Println("command", command)
+		fmt.Println("status", status)
+		fmt.Println("complete", complete)
+		fmt.Println("task", task)
+		fmt.Println("priority", priority)
+		fmt.Println("duration", duration)
+		fmt.Println("outobjects", outobjects)
 		fmt.Println(" - - - - - - ")
+		fmt.Println(7777)
+
+		//log.Println(error)
+		//log.Println(command)
+		//log.Println(status)
+		//log.Println(complete)
+		//log.Println(task)
+		//log.Println(priority)
+		//log.Println(duration)
+		//log.Println(outobjects)
 
 		// Random start time of search in the database, improves the work of several workers
 		rand.Seed(time.Now().UTC().UnixNano())
@@ -77,7 +87,10 @@ func main() {
 		fmt.Println("Start worker time = ", t)
 		time.Sleep(time.Duration(t) * time.Second)
 
-		db.Close()
+		err1 := db.Close()
+		if err != nil {
+			log.Println(err1)
+		}
 
 	}
 
@@ -144,7 +157,7 @@ func SelectMinWaitTask() (id uint64, error int, command string, status string, c
 
 	// duration
 	if q.duration.Valid {
-		duration = float64(q.duration.Float64)
+		duration = q.duration.Float64
 	} else {
 		duration = 0
 	}

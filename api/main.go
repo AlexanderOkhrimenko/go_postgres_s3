@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go_postgres_s3/api/modules"
+	"log"
 )
 
 func main() {
@@ -19,7 +20,7 @@ func main() {
 	}
 	err := router.Run(":8080")
 	if err != nil {
-
+		log.Println(err)
 	}
 
 }

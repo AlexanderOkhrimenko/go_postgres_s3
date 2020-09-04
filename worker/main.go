@@ -70,7 +70,7 @@ func main() {
 		fmt.Println("duration", duration)
 		fmt.Println("outobjects", outobjects)
 		fmt.Println(" - - - - - - ")
-		fmt.Println(7777)
+		fmt.Println(9999)
 
 		//log.Println(error)
 		//log.Println(command)

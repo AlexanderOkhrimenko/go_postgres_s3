@@ -33,3 +33,13 @@ This is useful when changing the code and values in the **.env file.**
 Это полезно при изменении кода и значений в **.env** файле.
 - обратите внимание что внутри докера хосты доступны по именам указанным в **docker-compose.yml** например **minio** или **postgresql**
 
+```
+API     http://localhost:8080/v1/url.insert
+Kibana  http://localhost:5601
+MINIO   http://localhost:9000
+PGSQL   http://localhost:5432
+
+
+
+
+

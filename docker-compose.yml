@@ -79,6 +79,11 @@ services:
     volumes:
     - minio:/data
     restart: always
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: minio
     depends_on:
       - fluentd
     env_file:

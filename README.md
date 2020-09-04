@@ -38,8 +38,3 @@ API     http://localhost:8080/v1/url.insert
 Kibana  http://localhost:5601
 MINIO   http://localhost:9000
 PGSQL   http://localhost:5432
-
-
-
-
-
